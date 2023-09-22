@@ -10,15 +10,18 @@ const ItemList = ({ items, isLoading }) => {
   return (
     <div className="banner">
       <h1>Mejores Productos siempre!</h1>
+
+      <Link to="/checkout">Ir a finalizar compra</Link>
+
       <ul>
         {items.map((item) => (
         <div className="cajaProductos">
           <li key={item.id}>
             <Link className="title-id" to={`/item/${item.id}`}>
               <h3>{item.name}</h3>
-              <img src={item.image} alt={item.name} />
+              <img src={item.imageId} alt={item.name} />
               <p>${item.price}</p>
-              <p>{item.category}</p>
+              <p>{item.categoryId}</p>
             </Link>
           </li>
         </div>

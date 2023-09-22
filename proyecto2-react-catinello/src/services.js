@@ -1,3 +1,6 @@
+import { doc, getDoc, getFirestore, collection, query, where, getDocs, addDoc } from "firebase/firestore";
+
+
 const products = [
     {id: "1", name: "Hamburguesa Barbacoa", price: 1500, category: "burgers", image: "../public/hamburguesa-barbacoa.jpg"},
     {id: "2", name: "Hamburguesa Panceta Crujiente", price: 1800, category: "burgers", image: "../public/hamburguesa-panceta.jpg"},
@@ -11,26 +14,46 @@ const products = [
 
 export const getProduct = (id) =>{
     return new Promise((resolve, reject ) => {
-        setTimeout(() => {
-            const product = products.find((p) => p.id === id)
+        const db = getFirestore();
 
-            if (product) {
-                resolve(product)
+        const itemDoc = doc(db, "items", id);
+
+        getDoc(itemDoc)
+        .then((doc) => {
+            if (doc.exists()) {
+                resolve({ id: doc.id, ...doc.data() });
             } else {
-                reject('El producto no existe')
+                resolve(null)
             }
-        }, 1000)
+        })
+        .catch((error) => {
+            reject(error)
+        })
     })
 }
 
-export const getProducts = (category) => {
+export const getProducts = (categoryId) => {
     return new Promise ((resolve) => {
-        setTimeout(() => {
-            const productsFiltered = category
-                ? products.filter(product => product.category === category) 
-                : products;
+        const db = getFirestore();
 
-            resolve(productsFiltered)
-        }, 1000)
+        const itemCollection = collection(db, "items");
+
+        let q
+        if (categoryId) {
+            q = query(itemCollection, where("category", "==", categoryId));
+        } else {
+            q = query(itemCollection)
+        }
+        getDocs(q)
+        .then((querySnapshot) => {
+            const products = querySnapshot.docs.map((doc) => {
+                return {id: doc.id, ...doc.data()};
+            });
+            resolve(products);
+        })
+        .catch((error) => {
+            reject(error)
+        })
+
     });
 }
